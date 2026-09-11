@@ -1,0 +1,25 @@
+# Data & konfigurasi lokal (jangan ikut di-commit)
+todos.json
+config.json
+
+# Binary hasil build
+todo-app
+todo-list
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Output test
+*.test
+*.out
+
+# Dependency (kalau nanti pakai module luar)
+vendor/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Buku Tugas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #16302B;
+    --bg-soft: #1D3B34;
+    --paper: #F1E9D8;
+    --paper-line: #DCCFAF;
+    --ink: #2B2A22;
+    --ink-soft: #6B6656;
+    --gold: #C9A227;
+    --sage: #5B7B5A;
+    --clay: #B0563A;
+    --focus: #E8C766;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--paper);
+    font-family: 'IBM Plex Sans', sans-serif;
+    min-height: 100vh;
+  }
+  h1,h2,h3, .display{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    margin: 0;
+  }
+  button{
+    font-family: inherit;
+    cursor: pointer;
+  }
+  input, textarea, select{
+    font-family: inherit;
+    font-size: 0.95rem;
+  }
+  *:focus-visible{
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .shell{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 28px 80px;
+  }
+  .masthead{
+    display:flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 40px;
+    border-bottom: 1px solid rgba(241,233,216,0.25);
+    padding-bottom: 20px;
+  }
+  .masthead h1{
+    font-size: 2rem;
+    letter-spacing: 0.2px;
+  }
+  .masthead p{
+    margin: 4px 0 0;
+    color: rgba(241,233,216,0.6);
+    font-size: 0.9rem;
+  }
+
+  .settings-panel{
+    background: var(--bg-soft);
+    border: 1px solid rgba(241,233,216,0.15);
+    padding: 18px 20px;
+    margin: 0 0 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 18px;
+  }
+  .settings-panel .full{ grid-column: 1 / -1; }
+  .settings-panel h3{
+    font-size: 1rem;
+    color: var(--paper);
+    grid-column: 1 / -1;
+  }
+  .settings-panel p.hint{
+    grid-column: 1 / -1;
+    font-size: 0.8rem;
+    color: rgba(241,233,216,0.55);
+    margin: -4px 0 6px;
+  }
+  .settings-panel label{
+    display:block;
+    font-size: 0.75rem;
+    color: rgba(241,233,216,0.6);
+    margin-bottom: 4px;
+  }
+  .settings-panel input{
+    width: 100%;
+    border: 1px solid rgba(241,233,216,0.25);
+    background: rgba(241,233,216,0.08);
+    color: var(--paper);
+    padding: 8px 10px;
+  }
+  .settings-panel .status-line{
+    grid-column: 1 / -1;
+    font-size: 0.8rem;
+    color: rgba(241,233,216,0.65);
+  }
+  .settings-panel .row-actions{
+    grid-column: 1 / -1;
+    display:flex;
+    gap: 12px;
+    align-items:center;
+  }
+  .btn-gold{
+    background: var(--gold);
+    color: #1c1608;
+    border: none;
+    padding: 9px 16px;
+    font-size: 0.85rem;
+  }
+  .btn-gold:hover{ opacity: 0.9; }
+
+  .layout{
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 760px){
+    .layout{ grid-template-columns: 1fr; }
+  }
+
+  /* Sidebar: judul list */
+  .sidebar-title{
+    font-size: 0.78rem;
+    color: rgba(241,233,216,0.5);
+    margin-bottom: 10px;
+  }
+  .judul-list{
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .judul-item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border-left: 3px solid transparent;
+    background: transparent;
+    color: rgba(241,233,216,0.85);
+    text-align: left;
+    border-top: none; border-right: none; border-bottom: none;
+    width: 100%;
+  }
+  .judul-item:hover{ background: rgba(241,233,216,0.06); }
+  .judul-item.active{
+    background: var(--paper);
+    color: var(--ink);
+    border-left-color: var(--gold);
+  }
+  .judul-item .nama{
+    font-family: 'Fraunces', serif;
+    font-size: 1rem;
+  }
+  .judul-item .count{
+    font-size: 0.78rem;
+    opacity: 0.65;
+    white-space: nowrap;
+  }
+  .btn-ghost{
+    background: none;
+    border: 1px dashed rgba(241,233,216,0.35);
+    color: rgba(241,233,216,0.75);
+    padding: 10px 14px;
+    width: 100%;
+    font-size: 0.88rem;
+  }
+  .btn-ghost:hover{ border-color: var(--gold); color: var(--gold); }
+
+  /* Main panel */
+  .panel{
+    background: var(--paper);
+    color: var(--ink);
+    padding: 28px 30px 30px;
+    min-height: 420px;
+  }
+  .panel-empty{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height: 420px;
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    text-align: center;
+  }
+  .panel-head{
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    border-bottom: 1px solid var(--paper-line);
+    padding-bottom: 16px;
+    margin-bottom: 4px;
+  }
+  .panel-head h2{ font-size: 1.5rem; }
+  .panel-head .meta{
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    margin-top: 4px;
+  }
+  .icon-btn{
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    padding: 4px 0;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .icon-btn:hover{ color: var(--clay); }
+
+  .tugas-row{
+    border-bottom: 1px solid var(--paper-line);
+    padding: 16px 0;
+  }
+  .tugas-row.done .nama-tugas{
+    text-decoration: line-through;
+    color: var(--ink-soft);
+  }
+  .tugas-top{
+    display:flex;
+    align-items:flex-start;
+    gap: 12px;
+  }
+  .check{
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--ink-soft);
+    margin-top: 2px;
+    flex-shrink: 0;
+    display: grid;
+    place-content: center;
+  }
+  .check::after{
+    content: "";
+    width: 10px; height: 10px;
+    background: var(--sage);
+    display: none;
+  }
+  .check:checked{ border-color: var(--sage); }
+  .check:checked::after{ display:block; }
+
+  .tugas-body{ flex: 1; min-width: 0; }
+  .tugas-title-line{
+    display:flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+  .nama-tugas{
+    font-size: 1.02rem;
+    font-weight: 500;
+  }
+  .tag{
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .tag.p1{ color: var(--clay); }
+  .tag.p2{ color: var(--gold); }
+  .tag.p3{ color: var(--sage); }
+
+  .tugas-meta{
+    margin-top: 6px;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    display:flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .tugas-rincian{
+    margin-top: 8px;
+    font-size: 0.88rem;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .tugas-actions{
+    margin-top: 10px;
+    display:flex;
+    gap: 14px;
+  }
+  .tugas-actions button{
+    background:none;
+    border:none;
+    padding:0;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .tugas-actions button:hover{ color: var(--ink); }
+  .tugas-actions button.danger:hover{ color: var(--clay); }
+
+  .empty-tugas{
+    padding: 24px 0;
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+  }
+
+  /* forms */
+  .form-ribbon{
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--paper-line);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+  }
+  .form-ribbon .full{ grid-column: 1 / -1; }
+  .field label{
+    display:block;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  .field input, .field select, .field textarea{
+    width: 100%;
+    border: 1px solid var(--paper-line);
+    background: #fff;
+    padding: 8px 10px;
+    color: var(--ink);
+  }
+  .field textarea{ resize: vertical; min-height: 44px; }
+  .form-actions{
+    grid-column: 1 / -1;
+    display:flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .btn-primary{
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 9px 18px;
+    font-size: 0.88rem;
+  }
+  .btn-primary:hover{ background: var(--clay); }
+  .btn-text{
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+  .form-error{
+    grid-column: 1 / -1;
+    color: var(--clay);
+    font-size: 0.82rem;
+  }
+  .add-toggle{
+    margin-top: 16px;
+    background: none;
+    border: 1px dashed var(--paper-line);
+    color: var(--ink-soft);
+    padding: 10px 14px;
+    width: 100%;
+    font-size: 0.88rem;
+    text-align: left;
+  }
+  .add-toggle:hover{ border-color: var(--clay); color: var(--clay); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <header class="masthead">
+    <div>
+      <h1>Buku Tugas</h1>
+      <p>Kelompokkan tugas ke dalam judul, lalu urus rinciannya di sini.</p>
+    </div>
+    <button class="icon-btn" id="btnSettings" style="align-self:flex-start;">Pengaturan notifikasi</button>
+    <a class="icon-btn" href="/api/export/csv" style="align-self:flex-start;">Export CSV</a>
+  </header>
+
+  <style>.masthead{ flex-wrap: wrap; } .masthead > *:not(:first-child){ margin-left: 4px; }</style>
+
+  <div id="settingsSlot"></div>
+
+  <div class="layout">
+    <aside>
+      <div class="sidebar-title">Judul</div>
+      <ul class="judul-list" id="judulList"></ul>
+      <button class="btn-ghost" id="btnNewJudul">+ Judul baru</button>
+      <div id="judulFormSlot"></div>
+    </aside>
+
+    <main class="panel" id="panel">
+      <div class="panel-empty">Pilih judul di samping, atau buat judul baru untuk mulai.</div>
+    </main>
+  </div>
+</div>
+
+<script>
+const API = "/api/judul";
+let state = { data: [], selectedId: null, addingJudul: false, addingTugas: false, editingTugasId: null, showSettings: false, ntfyTopic: "" };
+const NOTIFIED_KEY = "bukuTugas_notifiedDeadlines";
+
+function getNotifiedSet() {
+  try { return new Set(JSON.parse(localStorage.getItem(NOTIFIED_KEY) || "[]")); }
+  catch { return new Set(); }
+}
+function saveNotifiedSet(set) {
+  localStorage.setItem(NOTIFIED_KEY, JSON.stringify([...set]));
+}
+
+function showBrowserNotification(title, body) {
+  if (!("Notification" in window)) return;
+  if (Notification.permission === "granted") {
+    new Notification(title, { body });
+  }
+}
+
+function checkDeadlinesForBrowserNotif() {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  const notified = getNotifiedSet();
+  const today = new Date().toISOString().slice(0, 10);
+  let changed = false;
+  state.data.forEach(j => {
+    (j.tugas || []).forEach(t => {
+      if (t.status === "Selesai" || !t.deadline) return;
+      const key = `${t.id}-${t.deadline}`;
+      if (t.deadline <= today && !notified.has(key)) {
+        showBrowserNotification("Deadline tugas", `${t.nama} (${j.nama}) jatuh tempo ${t.deadline}`);
+        notified.add(key);
+        changed = true;
+      }
+    });
+  });
+  if (changed) saveNotifiedSet(notified);
+}
+
+async function api(path, options = {}) {
+  const res = await fetch(path, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(body.error || "Terjadi kesalahan.");
+  }
+  return body;
+}
+
+async function loadAll() {
+  state.data = await api(API);
+  render();
+  checkDeadlinesForBrowserNotif();
+}
+
+async function loadSettings() {
+  try {
+    const s = await api("/api/settings");
+    state.ntfyTopic = s.ntfyTopic || "";
+  } catch (e) {
+    // abaikan, biarkan kosong
+  }
+}
+
+function renderSettings() {
+  const slot = document.getElementById("settingsSlot");
+  if (!state.showSettings) { slot.innerHTML = ""; return; }
+
+  const permission = ("Notification" in window) ? Notification.permission : "unsupported";
+  const permLabel = permission === "granted" ? "Sudah aktif"
+    : permission === "denied" ? "Diblokir di browser"
+    : permission === "unsupported" ? "Browser ini tidak mendukung"
+    : "Belum aktif";
+
+  const wrap = document.createElement("div");
+  wrap.className = "settings-panel";
+  wrap.innerHTML = `
+    <h3>Pengaturan notifikasi</h3>
+
+    <div class="full">
+      <label>Notifikasi browser (di perangkat ini)</label>
+      <div class="row-actions">
+        <span class="status-line">${permLabel}</span>
+        ${permission === "default" ? '<button class="btn-gold" id="btnEnableBrowser">Aktifkan</button>' : ""}
+      </div>
+    </div>
+
+    <div class="full">
+      <label>Topik ntfy (untuk notifikasi ke HP)</label>
+      <p class="hint">Install app "ntfy" di HP kamu, buat topik bebas (mis. "tugas-imam-8213"), lalu subscribe ke topik itu di app-nya. Masukkan nama topik yang sama di sini.</p>
+    </div>
+    <div>
+      <input type="text" id="f_ntfyTopic" value="${escapeAttr(state.ntfyTopic)}" placeholder="mis. tugas-imam-8213" />
+    </div>
+    <div class="row-actions">
+      <button class="btn-gold" id="btnSaveNtfy">Simpan</button>
+      <span class="status-line" id="ntfySaveStatus"></span>
+    </div>
+  `;
+  slot.innerHTML = "";
+  slot.appendChild(wrap);
+
+  const enableBtn = document.getElementById("btnEnableBrowser");
+  if (enableBtn) {
+    enableBtn.onclick = async () => {
+      await Notification.requestPermission();
+      renderSettings();
+    };
+  }
+
+  document.getElementById("btnSaveNtfy").onclick = async () => {
+    const topic = document.getElementById("f_ntfyTopic").value.trim();
+    const statusEl = document.getElementById("ntfySaveStatus");
+    try {
+      await api("/api/settings", { method: "POST", body: JSON.stringify({ ntfyTopic: topic }) });
+      state.ntfyTopic = topic;
+      statusEl.textContent = "Tersimpan.";
+    } catch (e) {
+      statusEl.textContent = "Gagal menyimpan: " + e.message;
+    }
+  };
+}
+
+document.getElementById("btnSettings").onclick = () => {
+  state.showSettings = !state.showSettings;
+  renderSettings();
+};
+
+function priorityLabel(p) {
+  return p === 1 ? "Tinggi" : p === 2 ? "Sedang" : "Rendah";
+}
+function priorityClass(p) {
+  return p === 1 ? "p1" : p === 2 ? "p2" : "p3";
+}
+
+function render() {
+  renderSidebar();
+  renderPanel();
+}
+
+function renderSidebar() {
+  const ul = document.getElementById("judulList");
+  ul.innerHTML = "";
+  state.data.forEach(j => {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+    btn.className = "judul-item" + (j.id === state.selectedId ? " active" : "");
+    const doneCount = (j.tugas || []).filter(t => t.status === "Selesai").length;
+    btn.innerHTML = `<span class="nama">${escapeHtml(j.nama)}</span><span class="count">${doneCount}/${(j.tugas||[]).length}</span>`;
+    btn.onclick = () => { state.selectedId = j.id; state.addingTugas = false; state.editingTugasId = null; render(); };
+    li.appendChild(btn);
+    ul.appendChild(li);
+  });
+
+  const slot = document.getElementById("judulFormSlot");
+  slot.innerHTML = "";
+  if (state.addingJudul) {
+    const wrap = document.createElement("div");
+    wrap.className = "form-ribbon";
+    wrap.style.gridTemplateColumns = "1fr";
+    wrap.style.marginTop = "10px";
+    wrap.innerHTML = `
+      <div class="field full">
+        <label>Nama judul</label>
+        <input type="text" id="newJudulNama" placeholder="mis. Persiapan Acara" />
+      </div>
+      <div class="form-error" id="judulErr" style="display:none;"></div>
+      <div class="form-actions">
+        <button class="btn-primary" id="saveJudul">Simpan</button>
+        <button class="btn-text" id="cancelJudul">Batal</button>
+      </div>
+    `;
+    slot.appendChild(wrap);
+    document.getElementById("saveJudul").onclick = async () => {
+      const nama = document.getElementById("newJudulNama").value.trim();
+      const errEl = document.getElementById("judulErr");
+      try {
+        const j = await api(API, { method: "POST", body: JSON.stringify({ nama }) });
+        state.addingJudul = false;
+        await loadAll();
+        state.selectedId = j.id;
+        render();
+      } catch (e) {
+        errEl.textContent = e.message;
+        errEl.style.display = "block";
+      }
+    };
+    document.getElementById("cancelJudul").onclick = () => { state.addingJudul = false; render(); };
+  }
+}
+
+document.getElementById("btnNewJudul").onclick = () => { state.addingJudul = true; render(); };
+
+function renderPanel() {
+  const panel = document.getElementById("panel");
+  const j = state.data.find(x => x.id === state.selectedId);
+  if (!j) {
+    panel.innerHTML = `<div class="panel-empty">Pilih judul di samping, atau buat judul baru untuk mulai.</div>`;
+    return;
+  }
+
+  const doneCount = (j.tugas || []).filter(t => t.status === "Selesai").length;
+  panel.innerHTML = `
+    <div class="panel-head">
+      <div>
+        <h2>${escapeHtml(j.nama)}</h2>
+        <div class="meta">${doneCount} dari ${(j.tugas||[]).length} tugas selesai</div>
+      </div>
+      <button class="icon-btn" id="deleteJudul">Hapus judul ini</button>
+    </div>
+    <div id="tugasContainer"></div>
+    <button class="add-toggle" id="toggleAddTugas">${state.addingTugas ? "Tutup form" : "+ Tambah tugas"}</button>
+    <div id="tugasFormSlot"></div>
+  `;
+
+  document.getElementById("deleteJudul").onclick = async () => {
+    if (!confirm(`Hapus judul "${j.nama}" beserta semua tugasnya?`)) return;
+    await api(`${API}/${j.id}`, { method: "DELETE" });
+    state.selectedId = null;
+    await loadAll();
+  };
+
+  document.getElementById("toggleAddTugas").onclick = () => {
+    state.addingTugas = !state.addingTugas;
+    state.editingTugasId = null;
+    render();
+  };
+
+  renderTugasList(j);
+  if (state.addingTugas) renderTugasForm(j, null);
+}
+
+function renderTugasList(j) {
+  const container = document.getElementById("tugasContainer");
+  const list = j.tugas || [];
+  if (list.length === 0) {
+    container.innerHTML = `<div class="empty-tugas">Belum ada tugas. Tambahkan yang pertama di bawah.</div>`;
+    return;
+  }
+  container.innerHTML = "";
+  list.forEach(t => {
+    const row = document.createElement("div");
+    row.className = "tugas-row" + (t.status === "Selesai" ? " done" : "");
+
+    if (state.editingTugasId === t.id) {
+      row.appendChild(buildTugasForm(j, t));
+      container.appendChild(row);
+      return;
+    }
+
+    row.innerHTML = `
+      <div class="tugas-top">
+        <input type="checkbox" class="check" ${t.status === "Selesai" ? "checked" : ""} />
+        <div class="tugas-body">
+          <div class="tugas-title-line">
+            <span class="nama-tugas">${escapeHtml(t.nama)}</span>
+            <span class="tag ${priorityClass(t.priority)}">${priorityLabel(t.priority)}</span>
+          </div>
+          <div class="tugas-meta">
+            ${t.pic ? `<span>PIC: ${escapeHtml(t.pic)}</span>` : ""}
+            ${t.deadline ? `<span>Deadline: ${escapeHtml(t.deadline)}</span>` : ""}
+          </div>
+          ${t.rincian ? `<div class="tugas-rincian">${escapeHtml(t.rincian)}</div>` : ""}
+          <div class="tugas-actions">
+            <button data-action="edit">Edit</button>
+            <button data-action="delete" class="danger">Hapus</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    row.querySelector(".check").onchange = async (e) => {
+      const status = e.target.checked ? "Selesai" : "Belum Selesai";
+      await api(`${API}/${j.id}/tugas/${t.id}/status`, { method: "PATCH", body: JSON.stringify({ status }) });
+      await loadAll();
+    };
+    row.querySelector('[data-action="edit"]').onclick = () => {
+      state.editingTugasId = t.id;
+      state.addingTugas = false;
+      render();
+    };
+    row.querySelector('[data-action="delete"]').onclick = async () => {
+      if (!confirm(`Hapus tugas "${t.nama}"?`)) return;
+      await api(`${API}/${j.id}/tugas/${t.id}`, { method: "DELETE" });
+      await loadAll();
+    };
+
+    container.appendChild(row);
+  });
+}
+
+function renderTugasForm(j, existing) {
+  const slot = document.getElementById("tugasFormSlot");
+  slot.innerHTML = "";
+  slot.appendChild(buildTugasForm(j, existing));
+}
+
+function buildTugasForm(j, existing) {
+  const wrap = document.createElement("div");
+  wrap.className = "form-ribbon";
+  const v = existing || { nama: "", rincian: "", priority: 2, pic: "", deadline: "" };
+  wrap.innerHTML = `
+    <div class="field full">
+      <label>Nama tugas</label>
+      <input type="text" id="f_nama" value="${escapeAttr(v.nama)}" placeholder="mis. Booking venue" />
+    </div>
+    <div class="field full">
+      <label>Rincian</label>
+      <textarea id="f_rincian" placeholder="Penjelasan tugas ini">${escapeHtml(v.rincian)}</textarea>
+    </div>
+    <div class="field">
+      <label>Prioritas</label>
+      <select id="f_priority">
+        <option value="1" ${v.priority === 1 ? "selected" : ""}>Tinggi</option>
+        <option value="2" ${v.priority === 2 ? "selected" : ""}>Sedang</option>
+        <option value="3" ${v.priority === 3 ? "selected" : ""}>Rendah</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>PIC</label>
+      <input type="text" id="f_pic" value="${escapeAttr(v.pic)}" placeholder="Nama penanggung jawab" />
+    </div>
+    <div class="field">
+      <label>Deadline</label>
+      <input type="date" id="f_deadline" value="${escapeAttr(v.deadline)}" />
+    </div>
+    <div class="form-error" id="f_err" style="display:none;"></div>
+    <div class="form-actions">
+      <button class="btn-primary" id="f_save">${existing ? "Update tugas" : "Simpan tugas"}</button>
+      <button class="btn-text" id="f_cancel">Batal</button>
+    </div>
+  `;
+
+  wrap.querySelector("#f_cancel").onclick = () => {
+    state.addingTugas = false;
+    state.editingTugasId = null;
+    render();
+  };
+
+  wrap.querySelector("#f_save").onclick = async () => {
+    const errEl = wrap.querySelector("#f_err");
+    const payload = {
+      nama: wrap.querySelector("#f_nama").value.trim(),
+      rincian: wrap.querySelector("#f_rincian").value.trim(),
+      priority: parseInt(wrap.querySelector("#f_priority").value, 10),
+      pic: wrap.querySelector("#f_pic").value.trim(),
+      deadline: wrap.querySelector("#f_deadline").value.trim(),
+    };
+    try {
+      if (existing) {
+        await api(`${API}/${j.id}/tugas/${existing.id}`, { method: "PUT", body: JSON.stringify(payload) });
+        state.editingTugasId = null;
+      } else {
+        await api(`${API}/${j.id}/tugas`, { method: "POST", body: JSON.stringify(payload) });
+        state.addingTugas = false;
+        showBrowserNotification("Tugas baru", `${payload.nama} ditambahkan ke "${j.nama}"`);
+      }
+      await loadAll();
+    } catch (e) {
+      errEl.textContent = e.message;
+      errEl.style.display = "block";
+    }
+  };
+
+  return wrap;
+}
+
+function escapeHtml(s) {
+  return (s || "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m]));
+}
+function escapeAttr(s) { return escapeHtml(s); }
+
+loadAll().catch(e => {
+  document.getElementById("panel").innerHTML = `<div class="panel-empty">Gagal memuat data: ${escapeHtml(e.message)}</div>`;
+});
+loadSettings();
+setInterval(() => { loadAll().catch(() => {}); }, 60000);
+</script>
+</body>
+</html>
