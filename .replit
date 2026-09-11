@@ -1,0 +1,14 @@
+run = "go run main.go"
+entrypoint = "main.go"
+
+[nix]
+channel = "stable-23_11"
+
+[[ports]]
+localPort = 8080
+externalPort = 80
+
+[deployment]
+build = ["sh", "-c", "go build -o server ."]
+run = ["sh", "-c", "./server"]
+deploymentTarget = "cloudrun"
